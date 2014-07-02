@@ -1,0 +1,10 @@
+.idea
+.idea/*
+node_modules/*
+*.yml
+*~
+
+
+missing.txt
+
+runChecks

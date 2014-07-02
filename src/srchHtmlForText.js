@@ -52,11 +52,18 @@ function reportUntranslatedText(file, data) {
   // remove angular content
   onlyText = onlyText.replace(/\{\{.+?\}\}/g, '');
   // remove xml/html tags
+  onlyText = onlyText.replace(/<\/.*?>/g, ',');
   onlyText = onlyText.replace(/<.*?>/g, '');
 
-  // prettify filtered text
+  /* At this point we have a file with a lot of commas that delimit each of the xml elements and a lot of
+   * spaces related to flattening the file and removing newlines. */
+
+  // prettify filtered text, remove extra spaces and commas
   returnMe = onlyText;
-  returnMe = returnMe.replace(/\s+/g, ' ');
+  returnMe = returnMe.replace(/\s+/g, ' ');  // remove multiple spaces
+  returnMe = returnMe.replace(/,\s*/g, ','); // remove comma space
+  returnMe = returnMe.replace(/,+/g, ',');   // remove sequential commas
+
 
   // log file and untranslated text
   console.log('missing translations (file: ' + file + ' :: Untranslated Set((' + returnMe + '))');
