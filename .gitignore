@@ -8,3 +8,7 @@ node_modules/*
 missing.txt
 
 runChecks
+
+*.translated
+
+*.dict
