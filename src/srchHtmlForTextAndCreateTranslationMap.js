@@ -42,6 +42,12 @@ try {
 }
 var counter = 0;
 
+function camelize(str) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+    return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+  }).replace(/\s+/g, '');
+}
+
 function reportUntranslatedText(file, data) {
 
   var returnMe = 'no content';
@@ -97,7 +103,8 @@ function createTranslationMap(filename, csvMissing) {
         var name = missingTextAry[i].toLowerCase();
 
         // the name of the static translation token has no spaces
-        name = name.replace(/\s+/g, '');
+        //name = name.replace(/\s+/g, '');
+        name = camelize(name);
 
         // the name of the static translation token has no ugly chars
         name = name.replace(/[\#\!\@\$\%\&\*\^\(\)\/\\]/g, '');

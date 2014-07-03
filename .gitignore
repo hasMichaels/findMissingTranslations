@@ -12,3 +12,5 @@ runChecks
 *.translated
 
 *.dict
+
+output.txt
