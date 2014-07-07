@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "optimist": "*"
+    "optimist": "*",
+    "underscore": "~1.6.0"
   }
 }

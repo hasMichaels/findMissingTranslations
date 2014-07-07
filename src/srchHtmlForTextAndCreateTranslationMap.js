@@ -17,7 +17,7 @@
  */
 
 var DEBUG = false;
-var exampleUsage = 'example usage: node ./src/srchHtmlForText.js /tmp/testDirectory';
+var exampleUsage = 'example usage: node ./src/srchHtmlForTextAndCreateTranslationMap.js /tmp/testDirectory';
 
 var myArgs = require('optimist').argv, help = exampleUsage;
 var fs = require('fs');

@@ -14,3 +14,7 @@ runChecks
 *.dict
 
 output.txt
+
+dictionary.json
+
+runDictJoin
