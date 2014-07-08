@@ -17,6 +17,7 @@
  */
 
 var DEBUG = false;
+var TOKENSEPARATOR = '_';
 var exampleUsage = 'example usage: node ./src/srchHtmlForTextAndCreateTranslationMap.js /tmp/testDirectory';
 
 var myArgs = require('optimist').argv, help = exampleUsage;
@@ -60,7 +61,7 @@ function reportUntranslatedText(file, data) {
   // remove angular content
   onlyText = onlyText.replace(/\{\{.+?\}\}/g, '');
   // remove xml/html tags
-  onlyText = onlyText.replace(/<\/.*?>/g, ',');
+  onlyText = onlyText.replace(/<\/.*?>/g, TOKENSEPARATOR);
   onlyText = onlyText.replace(/<.*?>/g, '');
 
   /* At this point we have a file with a lot of commas that delimit each of the xml elements and a lot of
@@ -69,8 +70,12 @@ function reportUntranslatedText(file, data) {
   // prettify filtered text, remove extra spaces and commas
   returnMe = onlyText;
   returnMe = returnMe.replace(/\s+/g, ' ');  // remove multiple spaces
-  returnMe = returnMe.replace(/,\s*/g, ','); // remove comma space
-  returnMe = returnMe.replace(/,+/g, ',');   // remove sequential commas
+  var delimiterSpace = '[\ ]*' + TOKENSEPARATOR+'[\ ]*';
+  var delimiterSpaceRegexp = new RegExp(delimiterSpace,'g');
+  returnMe = returnMe.replace(delimiterSpaceRegexp, TOKENSEPARATOR); // remove comma space
+  var sequential = TOKENSEPARATOR+'+';
+  var sequentialRegexp = new RegExp(sequential,'g');
+  returnMe = returnMe.replace(sequentialRegexp, TOKENSEPARATOR);   // remove sequential commas
 
 
   // log file and untranslated text
@@ -80,8 +85,9 @@ function reportUntranslatedText(file, data) {
 }
 
 function createTranslationMap(filename, csvMissing) {
+
   // split missing strings into array
-  var missingTextAry = csvMissing.split(",");
+  var missingTextAry = csvMissing.split(TOKENSEPARATOR);
 
   // determine prefix based on filename
   var prefix = filename;
@@ -167,13 +173,21 @@ function createTranslatedFile(filename, translationObj, fileContents) {
       var token = '<% ' + staticTranslation + ' %>';
       var tokenWithBrackets = '>' + token + '<';
       var thingToReplace = translationObj[staticTranslation];
+      // if thingToReplace contains specialchars replace them
+      thingToReplace = thingToReplace.replace('(\|(\))','.');
+      // if the length of the thing we are replacing is long and has a newline, truncate it
+      if (thingToReplace.length > 42) {
+        var Beginning = thingToReplace.substring(0,20).replace(/\W/g,'.');
+        var End = thingToReplace.substring(thingToReplace.length-20,thingToReplace.length-1).replace(/\W/g,'.');
+        thingToReplace = Beginning +'(.|[\r\n])*' + End;
+      }
       var thingToReplaceWithinBrackets = '>[\s\n\r]*?' + thingToReplace + '[\s\n\r]*?<';
       console.log('[createTranslatedFile] TOKEN:\t' + tokenWithBrackets);
       console.log('[createTranslatedFile] thingToReplace::\t[' + thingToReplaceWithinBrackets +']');
 
 
       // perform the replace
-      var replaceThis = new RegExp(thingToReplaceWithinBrackets, 'g');
+      var replaceThis = new RegExp(thingToReplaceWithinBrackets, 'gm');
       newFileContents = newFileContents.replace(replaceThis, tokenWithBrackets);
 
       // store off the new dictionary translation
