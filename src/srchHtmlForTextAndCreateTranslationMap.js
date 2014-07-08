@@ -24,6 +24,7 @@ var fs = require('fs');
 var path = require('path');
 var partialsPath = '/../test/testHtml';
 var directoryPath = __dirname;
+var _ = require('underscore');
 
 if (myArgs._[0]) {
   console.log('...  processing path to scan :' + myArgs._[0]);
@@ -95,8 +96,12 @@ function createTranslationMap(filename, csvMissing) {
       // If there is a missing translation then create a mapping to a static identifier
       if (missingTextAry[i] === '' ||
           missingTextAry[i] === ' ' ||
-          !missingTextAry[i].match(/\w/)) {
-        // Space: the final frontier.
+          !missingTextAry[i].match(/\w/) ||
+          missingTextAry[i].length === 1 ||
+          missingTextAry[i].match(/\s*x\s*/)) {
+        // Let's ignore translating the following:
+        // - Space: (the final frontier).
+        // - One Character: (x is the most popular static translation)
       } else {
 
         // the name of the static translation token is lowercase
@@ -129,23 +134,52 @@ function createTranslatedFile(filename, translationObj, fileContents) {
   var newFileContents = ""+fileContents;
   var newDictionaryContents = "";
 
-  for (var staticTranslation in translationObj) {
+  // order the dictionary based on size
+  // sort an array of users ascending by length of name
+  sortByLength = function(array){
+    return _.sortBy(array,function(element){
+      return element.name.length || 0;
+    });
+  }
+  var keyArray = Object.keys(translationObj);
+  var sortedKeys = _.sortBy(keyArray,function(str){ return str.length; });
+      sortedKeys = sortedKeys.reverse();
+
+
+
+  /* Proceed with replacing text based on the passed-in dictionary.
+   * Instead of going through each of the keys out of order
+   * like so: for (var staticTranslation in translationObj) {
+   * we need to start with the largest keys first so we use our reverse sorted keys.
+   * This way we don't accidentally replace portions of larger pieces of text.
+   * There is still a possibility that competing translations of the same length will interact if they're
+   * not unique (should not occur).
+   */
+  for (var idx in sortedKeys) {
+    var staticTranslation = sortedKeys[idx];
     if (translationObj.hasOwnProperty(staticTranslation)) {
 
       // let commandline know what is going to be replaced
-      console.log('[createTranslatedFile] search through ['+filename+']'+
-      'replace All ['+translationObj[staticTranslation]+'] with ['+staticTranslation+']');
+      console.log('[createTranslatedFile] search through [' + filename + ']' +
+      'replace All [' + translationObj[staticTranslation] + '] with [' + staticTranslation + ']');
 
-      // replace text with token in the new file
-      var token = '<% '+staticTranslation + ' %>';
-      console.log ('TOKEN'+token);
-      var replaceThis = new RegExp( translationObj[staticTranslation], 'g');
-      newFileContents = newFileContents.replace( replaceThis, token);
+      // decide on what we're replacing
+      var token = '<% ' + staticTranslation + ' %>';
+      var tokenWithBrackets = '>' + token + '<';
+      var thingToReplace = translationObj[staticTranslation];
+      var thingToReplaceWithinBrackets = '>[\s\n\r]*?' + thingToReplace + '[\s\n\r]*?<';
+      console.log('[createTranslatedFile] TOKEN:\t' + tokenWithBrackets);
+      console.log('[createTranslatedFile] thingToReplace::\t[' + thingToReplaceWithinBrackets +']');
+
+
+      // perform the replace
+      var replaceThis = new RegExp(thingToReplaceWithinBrackets, 'g');
+      newFileContents = newFileContents.replace(replaceThis, tokenWithBrackets);
 
       // store off the new dictionary translation
-      newDictionaryContents += '"' + staticTranslation + '" : "' + translationObj[staticTranslation] +'", ' +'\n';
+      newDictionaryContents += '"' + staticTranslation + '" : "' + translationObj[staticTranslation] + '", ' + '\n';
 
-      console.log('replaceThis:'+replaceThis);
+      console.log('replaceThis:' + replaceThis);
     }
   }
 
