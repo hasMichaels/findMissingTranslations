@@ -1,4 +1,5 @@
-https://github.com/hasMichaels/findMissingTranslations/wiki
+# Wiki
+- Workflow + Algs : https://github.com/hasMichaels/findMissingTranslations/wiki
 
 
 # srchHtmlForTexts
