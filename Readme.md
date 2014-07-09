@@ -1,3 +1,6 @@
+https://github.com/hasMichaels/findMissingTranslations/wiki
+
+
 # srchHtmlForTexts
 
   tiny script for clearing away html, angular, and custom tags to reveal text that need to be translated
@@ -19,3 +22,33 @@
     missing translations (file: 1 : /Users/michaels/github/findMissingTranslations/src...
     missingSomeTranslation.html/ :: Untranslated Set(( untranslated 0 of 4 ...
     untranslated 1 of 4 untranslated 2 of 4 untranslated 3 of 4 untranslated 4 of 4 ))
+
+
+
+# srchHtmlForTextAndCreateTranslationMap
+
+  find partials, create translation mapping
+
+## Usage
+
+- npm install
+- node ./src/srchHtmlForTextAndCreateTranslationMap.js
+- node ./src/srchHtmlForTextAndCreateTranslationMap.js `Directory` 
+
+## Artifacts
+- .dict : dictionary file with key - translation mapping 
+- .translation : partial with new translation keys
+
+
+# srchAndConsolidateDictFiles
+
+  find .dict artifacts, consolidates translations into a .json file
+
+## Usage
+
+- npm install
+- node ./src/srchAndConsolidateDictFiles.js
+- node ./src/srchAndConsolidateDictFiles.js `Directory` 
+
+## Artifacts
+- .dictionary.json : dictionary file in json
