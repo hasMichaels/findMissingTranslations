@@ -176,7 +176,7 @@ function createTranslatedFile(filename, translationObj, fileContents) {
       // if thingToReplace contains specialchars replace them
       thingToReplace = thingToReplace.replace('(\|(\))','.');
       // if the length of the thing we are replacing is long and has a newline, truncate it
-      if (thingToReplace.length > 42) {
+      if (thingToReplace.length > 70) {
         var Beginning = thingToReplace.substring(0,20).replace(/\W/g,'.');
         var End = thingToReplace.substring(thingToReplace.length-20,thingToReplace.length-1).replace(/\W/g,'.');
         thingToReplace = Beginning +'(.|[\r\n])*' + End;
