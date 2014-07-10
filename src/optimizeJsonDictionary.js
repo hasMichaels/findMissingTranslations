@@ -9,9 +9,11 @@
     2.) perform a reverse map and collect collisions
     3.) analyze collision:
         3.a) if not collided then it should be fine and exist in the file
-        3.b) if it exists within the parent namespace then rename to exist within the parent namespace
-        3.c) if it exists in multiple namespaces promote to common and update common dictionary
+        @todo: 3.b) if it exists within the parent namespace then rename to exist within the parent namespace
+        @todo: 3.c) if it exists in multiple namespaces promote to common and update common dictionary
     4.) compare and reduce dynamic and static
+
+    @todo : undefined and empty shows up in Collisions.  I need to filter this out.
 
  */
 
@@ -203,7 +205,7 @@ function loadCommonDictionary() {
     // flatten the dictionary
     jsonDictionary = flattenObj(jsonDictionary);
 
-    // !! create reverse dictionary [ value -> keys ]
+    // create reverse dictionary [ value -> keys ]
     invertDictionary = _.invert(flattenObj(jsonDictionary));
 
 
@@ -261,10 +263,6 @@ for (var i in files) {
       if (DEBUG) {
         console.log('[DEBUG] Collisions = ' + JSON.stringify(collisions) );
       }
-
-      // !! 3.b) detect / set within parent namespace
-
-      // !! 3.c) detect / set value is common namespace
 
       if (DEBUG) {
         console.log('[DEBUG] Dictionary = ' + JSON.stringify(jsonDictionary) );

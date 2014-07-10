@@ -18,6 +18,8 @@
 
 var DEBUG = false;
 var TOKENSEPARATOR = '_';
+var jsonDictionary = {};
+var invertDictionary = {};
 var exampleUsage = 'example usage: node ./src/srchHtmlForTextAndCreateTranslationMap.js /tmp/testDirectory';
 
 var myArgs = require('optimist').argv, help = exampleUsage;
@@ -50,6 +52,31 @@ function camelize(str) {
   }).replace(/\s+/g, '');
 }
 
+
+/*
+ * flattenObj
+ *  @param obj - JSON without array members
+ *  @param prefix - used during recursion when a JSON member contains an object
+ *  @todo Add this to a common module
+ */
+
+function flattenObj(obj, prefix) {
+  var returnme = {};
+  for (var key in obj) {
+    if (!_.isObject(obj[key])) {
+      var cobbledKey = (_.isString(prefix)) ? prefix + '.' + key : key;
+      returnme[cobbledKey] = obj[key];
+    } else {
+      var cobbledKey = (_.isString(prefix)) ? prefix + '.' + key : key;
+      var flattenedObject = flattenObj(obj[key], cobbledKey);
+      for (var flatKey in flattenedObject) {
+        returnme[flatKey] = flattenedObject[flatKey];
+      }
+    }
+  }
+  return returnme;
+}
+
 //!! integrate load common dictionary to already be part of the current dictionary
 //!! add in an invert check
 function loadCommonDictionary() {
@@ -70,7 +97,7 @@ function loadCommonDictionary() {
     // flatten the dictionary
     jsonDictionary = flattenObj(jsonDictionary);
 
-    // !! create reverse dictionary [ value -> keys ]
+    // create reverse dictionary [ value -> keys ]
     invertDictionary = _.invert(flattenObj(jsonDictionary));
 
 
@@ -139,8 +166,8 @@ function createTranslationMap(filename, csvMissing) {
           missingTextAry[i].replace(/^\s*/).length === 1 ||
           missingTextAry[i].match(/\s*x\s*/)) {
         // Let's ignore translating the following:
-        // - Space: (the final frontier).
-        // - One Character: (x is the most popular static translation)
+        // - Space: (Doesn't require translation).
+        // - One Character: (No need to translate one char, x is the most popular static one char translation)
       } else {
 
         // the name of the static translation token is lowercase
@@ -156,8 +183,18 @@ function createTranslationMap(filename, csvMissing) {
         // remove trailing spaces from translation text
         missingTextAry[i] = missingTextAry[i].replace(/\s$/g, '');
 
-        // create map
-        translationMap[prefix + name] = missingTextAry[i];
+        /* If we already have a translation for this in the common dictionary set the translation map to be
+           be the common dictionary
+         */
+        if (_.isString(invertDictionary[missingTextAry[i]])) {
+          // reuse existing definition
+          translationMap[invertDictionary[missingTextAry[i]]] = missingTextAry[i];
+        } else {
+          // create new map
+          translationMap[prefix + name] = missingTextAry[i];
+          // update invert dictionary
+          invertDictionary[missingTextAry[i]] = prefix + name;
+        }
       }
   }
 
@@ -180,15 +217,14 @@ function createTranslatedFile(filename, translationObj, fileContents) {
       return element.name.length || 0;
     });
   }
+
   var keyArray = Object.keys(translationObj);
   var sortedKeys = _.sortBy(keyArray,function(str){ return str.length; });
       sortedKeys = sortedKeys.reverse();
 
-
-
   /* Proceed with replacing text based on the passed-in dictionary.
    * Instead of going through each of the keys out of order
-   * like so: for (var staticTranslation in translationObj) {
+   * like so: for (var staticTranslation in translationObj) { ...,
    * we need to start with the largest keys first so we use our reverse sorted keys.
    * This way we don't accidentally replace portions of larger pieces of text.
    * There is still a possibility that competing translations of the same length will interact if they're
@@ -252,7 +288,9 @@ function createTranslatedFile(filename, translationObj, fileContents) {
   });
 }
 
-// go through files
+loadCommonDictionary();
+
+// go through files and create dictionary mappings and translations
 for (var i in files) {
   counter++;
   var filePath = path.join(directoryPath + files[i]);
