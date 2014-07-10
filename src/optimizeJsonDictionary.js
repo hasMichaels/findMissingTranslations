@@ -126,10 +126,12 @@ function addDataToDictionary(dict, fileData) {
       // 2 ) perform a reverse mapL detect/report collisions
       if (_.isString(invertDictionary[text])) {
 
+        // if we haven't defined this collision yet, let's begin with what we have in the inverted dictionary
         if (_.isUndefined(collisions[text])) {
           collisions[text] = invertDictionary[text] +',';
         }
 
+        // collect all collisions
         collisions[text] += address+',';
 
         // 3) if it already exists use what we have in the dictionary
@@ -137,6 +139,10 @@ function addDataToDictionary(dict, fileData) {
 
       } else {
 
+        // no collision yet, let's save it in the inverted dictionary for future comparison
+        invertDictionary[text] = address;
+
+        // set the combined dictionary too
         combinedDictionary[address] = text;
 
       }
