@@ -77,8 +77,6 @@ function flattenObj(obj, prefix) {
   return returnme;
 }
 
-//!! integrate load common dictionary to already be part of the current dictionary
-//!! add in an invert check
 function loadCommonDictionary() {
 
   fs.readFile('common.json', function(err, data) {
@@ -164,6 +162,7 @@ function createTranslationMap(filename, csvMissing) {
           missingTextAry[i] === ' ' ||
           !missingTextAry[i].match(/\w/) ||
           missingTextAry[i].replace(/^\s*/).length === 1 ||
+          missingTextAry[i].length === 1 ||
           missingTextAry[i].match(/\s*x\s*/)) {
         // Let's ignore translating the following:
         // - Space: (Doesn't require translation).
@@ -187,14 +186,20 @@ function createTranslationMap(filename, csvMissing) {
            be the common dictionary
          */
         if (_.isString(invertDictionary[missingTextAry[i]])) {
+
           // reuse existing definition
           translationMap[invertDictionary[missingTextAry[i]]] = missingTextAry[i];
+
         } else {
+
           // create new map
           translationMap[prefix + name] = missingTextAry[i];
+
           // update invert dictionary
           invertDictionary[missingTextAry[i]] = prefix + name;
+
         }
+
       }
   }
 
@@ -250,10 +255,13 @@ function createTranslatedFile(filename, translationObj, fileContents) {
         var End = thingToReplace.substring(thingToReplace.length-20,thingToReplace.length-1).replace(/\W/g,'.');
         thingToReplace = Beginning +'(.|[\r\n])*' + End;
       }
-      var thingToReplaceWithinBrackets = '>[\s\n\r]*?' + thingToReplace + '[\s\n\r]*?<';
+
+      // spaces can be spaces or newlines, represent that here
+      thingToReplace = thingToReplace.replace(/\s/g,'(\\s|\\n)*?');
+
+      var thingToReplaceWithinBrackets = '>(\\s|\\n)*' + thingToReplace + '(\\s|\\n)*<';
       console.log('[createTranslatedFile] TOKEN:\t' + tokenWithBrackets);
       console.log('[createTranslatedFile] thingToReplace::\t[' + thingToReplaceWithinBrackets +']');
-
 
       // perform the replace
       var replaceThis = new RegExp(thingToReplaceWithinBrackets, 'gm');
