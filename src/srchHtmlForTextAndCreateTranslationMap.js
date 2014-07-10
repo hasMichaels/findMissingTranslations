@@ -50,6 +50,39 @@ function camelize(str) {
   }).replace(/\s+/g, '');
 }
 
+//!! integrate load common dictionary to already be part of the current dictionary
+//!! add in an invert check
+function loadCommonDictionary() {
+
+  fs.readFile('common.json', function(err, data) {
+    var fileData = data;
+
+    jsonDictionary = JSON.parse(data);
+
+    if (DEBUG) {
+      console.log('[DEBUG] common dictionary loaded --> ' + JSON.stringify(jsonDictionary) );
+    }
+
+    if (err) {
+      console.log('[ERROR]: missing dictionary');
+    }
+
+    // flatten the dictionary
+    jsonDictionary = flattenObj(jsonDictionary);
+
+    // !! create reverse dictionary [ value -> keys ]
+    invertDictionary = _.invert(flattenObj(jsonDictionary));
+
+
+    if (DEBUG) {
+      console.log('[DEBUG] common dictionary flattened --> ' + JSON.stringify(jsonDictionary) );
+      console.log('[DEBUG] common dictionary inverted --> ' + JSON.stringify(invertDictionary) );
+    }
+
+  });
+
+}
+
 function reportUntranslatedText(file, data) {
 
   var returnMe = 'no content';
@@ -103,7 +136,7 @@ function createTranslationMap(filename, csvMissing) {
       if (missingTextAry[i] === '' ||
           missingTextAry[i] === ' ' ||
           !missingTextAry[i].match(/\w/) ||
-          missingTextAry[i].length === 1 ||
+          missingTextAry[i].replace(/^\s*/).length === 1 ||
           missingTextAry[i].match(/\s*x\s*/)) {
         // Let's ignore translating the following:
         // - Space: (the final frontier).
