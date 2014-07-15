@@ -150,7 +150,7 @@ function createTranslationMap(filename, csvMissing) {
   // determine prefix based on filename
   var prefix = filename;
   prefix = prefix.replace(/.html/g, '');
-  prefix = prefix + '.label.';
+  prefix = prefix + '.labels.';
 
   var translationMap = {};
 
@@ -163,7 +163,7 @@ function createTranslationMap(filename, csvMissing) {
           !missingTextAry[i].match(/\w/) ||
           missingTextAry[i].replace(/^\s*/).length === 1 ||
           missingTextAry[i].length === 1 ||
-          missingTextAry[i].match(/\s*x\s*/)) {
+          missingTextAry[i].match(/^\s*x\s*/)) {
         // Let's ignore translating the following:
         // - Space: (Doesn't require translation).
         // - One Character: (No need to translate one char, x is the most popular static one char translation)
@@ -177,7 +177,7 @@ function createTranslationMap(filename, csvMissing) {
         name = camelize(name);
 
         // the name of the static translation token has no ugly chars
-        name = name.replace(/[\#\!\@\$\%\&\*\^\(\)\/\\]/g, '');
+        name = name.replace(/[\#\!\@\$\%\&\*\^\(\)\/\\\.\,\'\-]/g, '');
 
         // remove trailing spaces from translation text
         missingTextAry[i] = missingTextAry[i].replace(/\s$/g, '');
@@ -250,16 +250,17 @@ function createTranslatedFile(filename, translationObj, fileContents) {
       // if thingToReplace contains specialchars replace them
       thingToReplace = thingToReplace.replace('(\|(\))','.');
       // if the length of the thing we are replacing is long and has a newline, truncate it
-      if (thingToReplace.length > 70) {
+      /*if (thingToReplace.length > 70) {
         var Beginning = thingToReplace.substring(0,20).replace(/\W/g,'.');
         var End = thingToReplace.substring(thingToReplace.length-20,thingToReplace.length-1).replace(/\W/g,'.');
         thingToReplace = Beginning +'(.|[\r\n])*' + End;
-      }
+        !!
+      }*/
 
       // spaces can be spaces or newlines, represent that here
       thingToReplace = thingToReplace.replace(/\s/g,'(\\s|\\n)*?');
 
-      var thingToReplaceWithinBrackets = '>(\\s|\\n)*' + thingToReplace + '(\\s|\\n)*<';
+      var thingToReplaceWithinBrackets = '>(\\s|\\n)*' + thingToReplace + '(\\s|\\n)*<*';
       console.log('[createTranslatedFile] TOKEN:\t' + tokenWithBrackets);
       console.log('[createTranslatedFile] thingToReplace::\t[' + thingToReplaceWithinBrackets +']');
 
@@ -316,6 +317,13 @@ for (var i in files) {
 
   // skip dictionary files
   if (files[i].match(/\.dict/)) {
+    console.log('[DEBUG - SKIPPING Translated]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+    continue;
+  }
+
+
+  // skip orig files
+  if (files[i].match(/\.orig/)) {
     console.log('[DEBUG - SKIPPING Translated]' + counter + ' of ' + files.length + ' files: ' + files[i]);
     continue;
   }
