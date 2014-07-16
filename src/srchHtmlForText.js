@@ -75,6 +75,39 @@ function reportUntranslatedText(file, data) {
 for (var i in files) {
   counter++;
   var filePath = path.join(directoryPath + files[i]);
+
+
+  // skip translated files
+  if (files[i].match(/\.translated/)) {
+    console.log('[DEBUG - SKIPPING Translated]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+    continue;
+  }
+
+  // skip dictionary files
+  if (files[i].match(/\.dict/)) {
+    console.log('[DEBUG - SKIPPING Translated]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+    continue;
+  }
+
+
+  // skip orig files
+  if (files[i].match(/\.orig/)) {
+    console.log('[DEBUG - SKIPPING Translated]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+    continue;
+  }
+
+  // skip hidden files
+  if (files[i].match(/^\./)) {
+    console.log('[DEBUG - SKIPPING hidden]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+    continue;
+  }
+
+  // skip hidden files
+  if (files[i].match(/\~$/)) {
+    console.log('[DEBUG - SKIPPING tempfile]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+    continue;
+  }
+
   if (DEBUG) {
     console.log('[DEBUG]'+counter + ' of ' + files.length + ' files: ' + files[i]);
     console.log('[DEBUG]__dirname: ' + directoryPath);

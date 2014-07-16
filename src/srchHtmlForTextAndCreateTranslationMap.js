@@ -25,6 +25,7 @@ var exampleUsage = 'example usage: node ./src/srchHtmlForTextAndCreateTranslatio
 var myArgs = require('optimist').argv, help = exampleUsage;
 var fs = require('fs');
 var path = require('path');
+var isDir = require('is-directory');
 var partialsPath = '/../test/testHtml';
 var directoryPath = __dirname;
 var _ = require('underscore');
@@ -249,7 +250,8 @@ function createTranslatedFile(filename, translationObj, fileContents) {
       var thingToReplace = translationObj[staticTranslation];
       // if thingToReplace contains specialchars replace them
       thingToReplace = thingToReplace.replace('(\|(\))','.');
-      // if the length of the thing we are replacing is long and has a newline, truncate it
+      // if the length of the thing we are replacing is long and has a newline, tclear
+      // runcate it
       /*if (thingToReplace.length > 70) {
         var Beginning = thingToReplace.substring(0,20).replace(/\W/g,'.');
         var End = thingToReplace.substring(thingToReplace.length-20,thingToReplace.length-1).replace(/\W/g,'.');
@@ -259,6 +261,7 @@ function createTranslatedFile(filename, translationObj, fileContents) {
 
       // spaces can be spaces or newlines, represent that here
       thingToReplace = thingToReplace.replace(/\s/g,'(\\s|\\n)*?');
+      thingToReplace = thingToReplace.replace(/\*\?\*/g, '*?');
 
       var thingToReplaceWithinBrackets = '>(\\s|\\n)*' + thingToReplace + '(\\s|\\n)*<*';
       console.log('[createTranslatedFile] TOKEN:\t' + tokenWithBrackets);
@@ -302,12 +305,16 @@ loadCommonDictionary();
 // go through files and create dictionary mappings and translations
 for (var i in files) {
   counter++;
+
+  // todo: modify the list to remove files that we don't want to visit
+
   var filePath = path.join(directoryPath + files[i]);
   if (DEBUG) {
     console.log('[DEBUG]' + counter + ' of ' + files.length + ' files: ' + files[i]);
     console.log('[DEBUG]__dirname: ' + directoryPath);
     console.log('[DEBUG]_partials: ' + partialsPath);
   }
+
 
   // skip translated files
   if (files[i].match(/\.translated/)) {
@@ -337,21 +344,27 @@ for (var i in files) {
   (function(filePath, i) {
     var csvStrings, translationMap;
 
-    fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
-      var fileData = data;
-      var fileName = i + ' : ' + filePath + '/';
-      if (err) {
-        console.log ( 'ERROR in file read loop @ '+fileName);
-        throw err;
-      }
-      if (DEBUG) {
-        console.log('[DEBUG] File Content:' + data);
-      }
-      csvStrings = reportUntranslatedText(fileName, fileData);
-      translationMap = createTranslationMap(files[i], csvStrings);
-      createTranslatedFile(directoryPath + partialsPath + '/' + files[i] + '.translated', translationMap, data);
-    });
 
+    // if a directory then skip
+    if (isDir(directoryPath + partialsPath + '/' + files[i])) {
+      console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' + files.length + ' dir: ' + directoryPath + files[i]);
+    } else {
+
+      fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
+        var fileData = data;
+        var fileName = i + ' : ' + filePath + '/';
+        if (err) {
+          console.log('ERROR in file read loop @ ' + fileName);
+          throw err;
+        }
+        if (DEBUG) {
+          console.log('[DEBUG] File Content:' + data);
+        }
+        csvStrings = reportUntranslatedText(fileName, fileData);
+        translationMap = createTranslationMap(files[i], csvStrings);
+        createTranslatedFile(directoryPath + partialsPath + '/' + files[i] + '.translated', translationMap, data);
+      });
+    }
 
   })(filePath, i);
 }
