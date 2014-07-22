@@ -1,0 +1,140 @@
+Export from https://docs.google.com/a/tune.com/document/d/10CcIneXOSf1aoAqNZ082OSz09-_Cs3WksuoSXyqqCYs/edit#
+
+Auto-Translation How-to
+
+    About this document
+    Basic Work Flow
+    Testing for missing translations
+        How To Test
+            Example
+         Example Output:
+    Replace text with tokens
+        How To Run Script To Generate/Replace Tokens
+            Example:
+            Artifacts Created: *.dict files and *.html.translated files
+    Consolidate Dictionary Files for bulk update to firebase
+        How to Run Script To Consolidate .dict files and generate valid JSON
+            Example:
+            Artifacts Created: dictionary .json
+        Updating Firebase with changes
+
+
+About this document
+This document captures how to run through and bulk replace untranslated static text within our infrastructure to translated tokens, which may be replaced with the appropriate translated text at runtime.  Static translations can follow a format <% token %> which at runtime is translated into text.  An example of this <% common.buttons.ok %> is translated into “Ok” in english.  This string translation applies to sentences and paragraphs, as well as individual words.  The goal for these scripts are to create these tokens and associate them with the appropriate text en masse albeit, only for static translations.  Dynamic translations that exist within configuration may be extracted manually.
+
+
+Motivation
+With over 700 key mappings for the publisher interface product, most of the scripts are tailored to focus on solving the volume problem. The algorithm is simple, it asks do I already have a key for this word or phrase and if so use that.  If not, generate a new one and replace the text with the key, document the mapping for database updates.
+
+
+
+
+
+
+
+
+
+Basic Work Flow
+
+
+1.) Test for missing translations: srchHtmlForText.js
+2.) Replace Text with existing or generated tokens: srchHtmlForTextAndCreateTranslationMap.js
+3.) Consolidate Dictionary Files for firebase updates: srchAndConsolidateDictfiles
+
+
+Testing for missing translations
+
+
+How To Test
+
+
+Run translation checks on a particular directory for text that has not been converted to translations:
+
+
+node ./src/srchHtmlForText.js <directory with partials>
+
+
+Example
+node ./src/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/partials
+
+
+An english report of missing translations will result:
+
+
+Example Output:
+missing translations (file: 8 : billing.html/ :: Untranslated Set(( ,...,...,...,PayQuicker Account,Electronic Funds Transfer (ETF/ACH),Invoice Frequency Weekly,Invoice Frequency Weekly, , , , , , , , ,# ,# / ,))
+
+
+Replace text with tokens
+
+
+How To Run Script To Generate/Replace Tokens
+
+
+- Update Dictionary.json file with the latest known dictionary
+
+
+- Run the script to read the dictionary and perform key replacements:
+
+
+        node src/srchHtmlForTextAndCreateTranslationMap.js <directory with partials>
+
+
+Example:
+node ./src/srchHtmlForTextAndCreateTranslationMap.js /Users/michaels/github/Publisher_Interface/app/partials
+
+
+- Translations and dictionary are created after running the script a .dict file containing the dictionary and a .translated file containing the translated partial will exist along-side it’s .html counterpart
+
+
+Artifacts Created: *.dict files and *.html.translated files
+
+
+- Compare the .html file and the .translated file
+        - Accept valid translations from the .translated file into the .html file
+        - Make changes where necessary
+        - When modifying or removing a newly generated key, be sure to update the .dict file as well
+- Push out a code review with the modified text
+
+
+Consolidate Dictionary Files for bulk update to firebase
+
+
+How to Run Script To Consolidate .dict files and generate valid JSON
+
+
+- Run the script to read the dictionary and perform key replacements:
+
+        node src/srchAndConsolidateDictFiles.js
+
+
+Example:
+node ./src/srchAndConsolidateDictfiles.js /Users/michaels/github/Publisher_Interface/app/partials
+
+
+- .dict files within the target directory are consolidated and formatted into JSON and saved in dictionary.json
+
+
+Artifacts Created: dictionary .json
+
+
+Updating Firebase with changes
+
+
+-  visit firebase and export the current database
+
+
+        example: https://ho-publisher.firebaseio.com/en
+
+
+- visit firebase and export the current database
+
+
+- add / modify exported database with JSON from newly generated tokens
+
+
+- import (upload) modified JSON file to firebase
+
+
+Github reference
+https://github.com/Adapp/Publisher_Interface/issues/1225
