@@ -347,7 +347,9 @@ for (var i in files) {
 
     // if a directory then skip
     if (isDir(directoryPath + partialsPath + '/' + files[i])) {
+
       console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' + files.length + ' dir: ' + directoryPath + files[i]);
+
     } else {
 
       fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {

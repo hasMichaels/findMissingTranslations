@@ -22,6 +22,7 @@ var myArgs = require('optimist').argv, help = exampleUsage;
 var fs = require('fs');
 var path = require('path');
 var partialsPath = '/../test/testHtml';
+var isDir = require('is-directory');
 var directoryPath = __dirname;
 
 if (myArgs._[0]) {
@@ -89,7 +90,6 @@ for (var i in files) {
     continue;
   }
 
-
   // skip orig files
   if (files[i].match(/\.orig/)) {
     console.log('[DEBUG - SKIPPING Translated]' + counter + ' of ' + files.length + ' files: ' + files[i]);
@@ -113,15 +113,26 @@ for (var i in files) {
     console.log('[DEBUG]__dirname: ' + directoryPath);
     console.log('[DEBUG]_partials: ' + partialsPath);
   }
+
   (function(filePath, i) {
-    fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
-      var fileData = data;
-      var fileName = i + ' : ' + filePath + '/';
-      if (err) throw err;
-      if (DEBUG) {
-        console.log('[DEBUG] File Content:' + data);
-      }
-      reportUntranslatedText(fileName, fileData);
-    });
+
+    // if a directory then skip
+    if (isDir(directoryPath + partialsPath + '/' + files[i])) {
+
+      console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' + files.length + ' dir: ' + directoryPath + files[i]);
+
+    } else {
+
+      fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
+        var fileData = data;
+        var fileName = i + ' : ' + filePath + '/';
+        if (err) throw err;
+        if (DEBUG) {
+          console.log('[DEBUG] File Content:' + data);
+        }
+        reportUntranslatedText(fileName, fileData);
+      });
+
+    }
   })(filePath, i);
 }
