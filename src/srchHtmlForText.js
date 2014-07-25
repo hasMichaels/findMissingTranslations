@@ -44,8 +44,10 @@ var counter = 0;
 
 function reportUntranslatedText(file, data) {
 
+  'use strict';
+
   var returnMe = 'no content';
-  var onlyText = "" + data; //stringify
+  var onlyText = '' + data; //stringify
   onlyText = onlyText.replace(/[\n\r]/g, ' ');
 
   // remove translations

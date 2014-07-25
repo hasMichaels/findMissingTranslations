@@ -20,7 +20,9 @@
     "TRANS_DYNAMIC_PATH" : true,
     "INTERNAL"           : true,
     "DEBUG"              : true,
-    "Firebase"           : false
+    "Firebase"           : false,
+    "require"            : true,
+    "__dirname"          : true
   },
   "indent"      : 2,
   "jquery"      : true,

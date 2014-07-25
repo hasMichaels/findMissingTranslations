@@ -16,7 +16,7 @@
  *
  */
 
-var DEBUG = false;
+var DEBUG = true;
 var TOKENSEPARATOR = '_';
 var jsonDictionary = {};
 var invertDictionary = {};
@@ -32,7 +32,7 @@ var _ = require('underscore');
 
 if (myArgs._[0]) {
   console.log('...  processing path to scan :' + myArgs._[0]);
-  directoryPath = '';
+  directoryPath = '';             // use args path instead of this directory
   partialsPath = myArgs._[0];
 }
 
@@ -48,8 +48,9 @@ try {
 var counter = 0;
 
 function camelize(str) {
+  'use strict';
   return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-    return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+    return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
   }).replace(/\s+/g, '');
 }
 
@@ -62,13 +63,16 @@ function camelize(str) {
  */
 
 function flattenObj(obj, prefix) {
+  'use strict';
+
   var returnme = {};
   for (var key in obj) {
+    var cobbledKey = '';
     if (!_.isObject(obj[key])) {
-      var cobbledKey = (_.isString(prefix)) ? prefix + '.' + key : key;
+      cobbledKey = (_.isString(prefix)) ? prefix + '.' + key : key;
       returnme[cobbledKey] = obj[key];
     } else {
-      var cobbledKey = (_.isString(prefix)) ? prefix + '.' + key : key;
+      cobbledKey = (_.isString(prefix)) ? prefix + '.' + key : key;
       var flattenedObject = flattenObj(obj[key], cobbledKey);
       for (var flatKey in flattenedObject) {
         returnme[flatKey] = flattenedObject[flatKey];
@@ -80,8 +84,9 @@ function flattenObj(obj, prefix) {
 
 function loadCommonDictionary() {
 
+  'use strict';
+
   fs.readFile('common.json', function(err, data) {
-    var fileData = data;
 
     jsonDictionary = JSON.parse(data);
 
@@ -111,8 +116,10 @@ function loadCommonDictionary() {
 
 function reportUntranslatedText(file, data) {
 
+  'use strict';
+
   var returnMe = 'no content';
-  var onlyText = "" + data; //stringify
+  var onlyText = '' + data; //stringify
   onlyText = onlyText.replace(/[\n\r]/g, ' ');
 
   // remove translations
@@ -145,6 +152,8 @@ function reportUntranslatedText(file, data) {
 
 function createTranslationMap(filename, csvMissing) {
 
+  'use strict';
+
   // split missing strings into array
   var missingTextAry = csvMissing.split(TOKENSEPARATOR);
 
@@ -158,50 +167,49 @@ function createTranslationMap(filename, csvMissing) {
   // construct translation map
   for (var i = 0; i < missingTextAry.length; i++) {
 
-      // If there is a missing translation then create a mapping to a static identifier
-      if (missingTextAry[i] === '' ||
-          missingTextAry[i] === ' ' ||
-          !missingTextAry[i].match(/\w/) ||
-          missingTextAry[i].replace(/^\s*/).length === 1 ||
-          missingTextAry[i].length === 1 ||
-          missingTextAry[i].match(/^\s*x\s*/)) {
-        // Let's ignore translating the following:
-        // - Space: (Doesn't require translation).
-        // - One Character: (No need to translate one char, x is the most popular static one char translation)
+    // If there is a missing translation then create a mapping to a static identifier
+    // Let's ignore translating the following:
+    // - Space: (Doesn't require translation).
+    // - One Character: (No need to translate one char, x is the most popular static one char translation)
+    if (!(missingTextAry[i] === '' ||
+      missingTextAry[i] === ' ' || !missingTextAry[i].match(/\w/) ||
+      missingTextAry[i].replace(/^\s*/).length === 1 ||
+      missingTextAry[i].length === 1 ||
+      missingTextAry[i].match(/^\s*x\s*/))) {
+
+
+      // the name of the static translation token is lowercase
+      var name = missingTextAry[i].toLowerCase();
+
+      // the name of the static translation token has no spaces
+      //name = name.replace(/\s+/g, '');
+      name = camelize(name);
+
+      // the name of the static translation token has no ugly chars
+      name = name.replace(/[\#\!\@\$\%\&\*\^\(\)\/\\\.\,\'\-]/g, '');
+
+      // remove trailing spaces from translation text
+      missingTextAry[i] = missingTextAry[i].replace(/\s$/g, '');
+
+      /* If we already have a translation for this in the common dictionary set the translation map to be
+       be the common dictionary
+       */
+      if (_.isString(invertDictionary[missingTextAry[i]])) {
+
+        // reuse existing definition
+        translationMap[invertDictionary[missingTextAry[i]]] = missingTextAry[i];
+
       } else {
 
-        // the name of the static translation token is lowercase
-        var name = missingTextAry[i].toLowerCase();
+        // create new map
+        translationMap[prefix + name] = missingTextAry[i];
 
-        // the name of the static translation token has no spaces
-        //name = name.replace(/\s+/g, '');
-        name = camelize(name);
-
-        // the name of the static translation token has no ugly chars
-        name = name.replace(/[\#\!\@\$\%\&\*\^\(\)\/\\\.\,\'\-]/g, '');
-
-        // remove trailing spaces from translation text
-        missingTextAry[i] = missingTextAry[i].replace(/\s$/g, '');
-
-        /* If we already have a translation for this in the common dictionary set the translation map to be
-           be the common dictionary
-         */
-        if (_.isString(invertDictionary[missingTextAry[i]])) {
-
-          // reuse existing definition
-          translationMap[invertDictionary[missingTextAry[i]]] = missingTextAry[i];
-
-        } else {
-
-          // create new map
-          translationMap[prefix + name] = missingTextAry[i];
-
-          // update invert dictionary
-          invertDictionary[missingTextAry[i]] = prefix + name;
-
-        }
+        // update invert dictionary
+        invertDictionary[missingTextAry[i]] = prefix + name;
 
       }
+
+    }
   }
 
   console.log('Translation MAP [-------');
@@ -213,17 +221,15 @@ function createTranslationMap(filename, csvMissing) {
 
 function createTranslatedFile(filename, translationObj, fileContents) {
 
-  var newFileContents = ""+fileContents;
-  var newDictionaryContents = "";
+  'use strict';
 
-  // order the dictionary based on size
-  // sort an array of users ascending by length of name
-  sortByLength = function(array){
-    return _.sortBy(array,function(element){
-      return element.name.length || 0;
-    });
-  }
+  var newFileContents = ''+fileContents;
+  var newDictionaryContents = '';
 
+  /* Important reordering to allow for length based translation replacement:
+   *  - order the dictionary based on size
+   *  - sort an array of users ascending by length of name
+   */
   var keyArray = Object.keys(translationObj);
   var sortedKeys = _.sortBy(keyArray,function(str){ return str.length; });
       sortedKeys = sortedKeys.reverse();
@@ -251,7 +257,7 @@ function createTranslatedFile(filename, translationObj, fileContents) {
       // if thingToReplace contains specialchars replace them
       thingToReplace = thingToReplace.replace('(\|(\))','.');
       // if the length of the thing we are replacing is long and has a newline, tclear
-      // runcate it
+      // truncate it
       /*if (thingToReplace.length > 70) {
         var Beginning = thingToReplace.substring(0,20).replace(/\W/g,'.');
         var End = thingToReplace.substring(thingToReplace.length-20,thingToReplace.length-1).replace(/\W/g,'.');
@@ -272,7 +278,8 @@ function createTranslatedFile(filename, translationObj, fileContents) {
       newFileContents = newFileContents.replace(replaceThis, tokenWithBrackets);
 
       // store off the new dictionary translation
-      newDictionaryContents += '"' + staticTranslation + '" : "' + translationObj[staticTranslation] + '", ' + '\n';
+      newDictionaryContents += '"' + staticTranslation + '" : "' +
+        translationObj[staticTranslation] + '", ' + '\n';
 
       console.log('replaceThis:' + replaceThis);
     }
@@ -283,9 +290,9 @@ function createTranslatedFile(filename, translationObj, fileContents) {
   // save .translation file
   fs.writeFile (filename, newFileContents, function(err) {
     if(err) {
-      console.log("SAVE FAILURE [" + filename + "] was saved!"+err);
+      console.log('SAVE FAILURE [' + filename + '] was saved!'+err);
     } else {
-      console.log("SAVE Success [" + filename + "] was saved!");
+      console.log('SAVE Success [' + filename + '] was saved!');
     }
   });
 
@@ -293,12 +300,47 @@ function createTranslatedFile(filename, translationObj, fileContents) {
   var dictFilename = filename.replace(/translated/g, 'dict');
   fs.writeFile (dictFilename, newDictionaryContents, function(err) {
     if(err) {
-      console.log("SAVE FAILURE [" + dictFilename + "] was saved!"+err);
+      console.log('SAVE FAILURE [' + dictFilename + '] was saved!'+err);
     } else {
-      console.log("SAVE Success [" + dictFilename + "] was saved!");
+      console.log('SAVE Success [' + dictFilename + '] was saved!');
     }
   });
 }
+
+
+function createTranslationAndDictionary(filePath, fullPath, file, i) {
+
+  'use strict';
+
+  var csvStrings, translationMap;
+
+  // if a directory then skip
+  if (isDir(fullPath)) {
+
+    console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' +
+    files.length + ' dir: ' + fullPath);
+
+  } else {
+
+    fs.readFile(fullPath, function(err, data) {
+      var fileData = data;
+      var fileName = i + ' : ' + filePath + '/';
+      if (err) {
+        console.log('ERROR in file read loop @ ' + fileName);
+        throw err;
+      }
+      if (DEBUG) {
+        console.log('[DEBUG] File Content:' + data);
+      }
+      csvStrings = reportUntranslatedText(fileName, fileData);
+      translationMap = createTranslationMap(file, csvStrings);
+      createTranslatedFile(fullPath + '.translated', translationMap, data);
+    });
+
+  }
+
+}
+
 
 loadCommonDictionary();
 
@@ -309,12 +351,13 @@ for (var i in files) {
   // todo: modify the list to remove files that we don't want to visit
 
   var filePath = path.join(directoryPath + files[i]);
+  var fullPath = directoryPath + partialsPath + '/' + files[i];
+
   if (DEBUG) {
     console.log('[DEBUG]' + counter + ' of ' + files.length + ' files: ' + files[i]);
-    console.log('[DEBUG]__dirname: ' + directoryPath);
-    console.log('[DEBUG]_partials: ' + partialsPath);
+    console.log('[DEBUG] current directory if no directory specified : ' + directoryPath);
+    console.log('[DEBUG] directory to run translation: ' + partialsPath);
   }
-
 
   // skip translated files
   if (files[i].match(/\.translated/)) {
@@ -341,32 +384,12 @@ for (var i in files) {
     continue;
   }
 
-  (function(filePath, i) {
-    var csvStrings, translationMap;
+  // skip directories
+  if (isDir(directoryPath + partialsPath + '/' + files[i])) {
+    console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' +
+    files.length + ' dir: ' + directoryPath + files[i]);
+    continue;
+  }
 
-
-    // if a directory then skip
-    if (isDir(directoryPath + partialsPath + '/' + files[i])) {
-
-      console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' + files.length + ' dir: ' + directoryPath + files[i]);
-
-    } else {
-
-      fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
-        var fileData = data;
-        var fileName = i + ' : ' + filePath + '/';
-        if (err) {
-          console.log('ERROR in file read loop @ ' + fileName);
-          throw err;
-        }
-        if (DEBUG) {
-          console.log('[DEBUG] File Content:' + data);
-        }
-        csvStrings = reportUntranslatedText(fileName, fileData);
-        translationMap = createTranslationMap(files[i], csvStrings);
-        createTranslatedFile(directoryPath + partialsPath + '/' + files[i] + '.translated', translationMap, data);
-      });
-    }
-
-  })(filePath, i);
+  createTranslationAndDictionary(filePath, fullPath, files[i], i);
 }

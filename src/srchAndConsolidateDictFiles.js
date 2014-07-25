@@ -21,8 +21,6 @@ var path = require('path');
 var partialsPath = '/../test/testHtml';
 var directoryPath = __dirname;
 
-var _ = require('underscore');
-
 if (myArgs._[0]) {
   console.log('...  processing path to scan :' + myArgs._[0]);
   directoryPath = '';
@@ -44,15 +42,17 @@ var jsonDictionary = {};
 
 function saveDictionary(jsonContent) {
 
+  'use strict';
+
   var dictFilename = 'dictionary.json';
 
   var content = JSON.stringify(jsonContent);
 
   fs.writeFile(dictFilename, content, function(err) {
     if (err) {
-      console.log("SAVE FAILURE [" + dictFilename + "] was saved!" + err);
+      console.log('SAVE FAILURE [' + dictFilename + '] was saved!' + err);
     } else {
-      console.log("SAVE Success [" + dictFilename + "] was saved!");
+      console.log('SAVE Success [' + dictFilename + '] was saved!');
     }
   });
 
@@ -60,9 +60,11 @@ function saveDictionary(jsonContent) {
 
 function addDataToDictionary(dict, fileData) {
 
+  'use strict';
+
   var combinedDictionary = dict;
 
-  var transformedFileData = ""+fileData;
+  var transformedFileData = ''+fileData;
 
   // remove newline
   transformedFileData = transformedFileData.replace(/[\n\r]/g, '');
@@ -72,9 +74,9 @@ function addDataToDictionary(dict, fileData) {
 
   for (var idx in dataPairs) {
 
-    var address = dataPairs[idx].replace(/\"(.*?)\"\s*\:\s*\"(.*?)\"/, "$1");
+    var address = dataPairs[idx].replace(/\'(.*?)\'\s*\:\s*\'(.*?)\'/, '$1');
 
-    var text = dataPairs[idx].replace(/\"(.*?)\"\s*\:\s*\"(.*?)\"/, "$2");
+    var text = dataPairs[idx].replace(/\'(.*?)\'\s*\:\s*\'(.*?)\'/, '$2');
 
     //remove trailing periods on address
     address = address.replace(/\.$/, '');
@@ -119,6 +121,33 @@ function addDataToDictionary(dict, fileData) {
 
 }
 
+function readFileAndUpdateDictionary(filePath, i, jsonDictionary) {
+
+  'use strict';
+
+  fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
+    var fileData = data;
+    var fileName = i + ' : ' + filePath + '/';
+    if (err) {
+      console.log('![ERROR] in file read loop @ ' + fileName);
+      throw err;
+    }
+
+    if (DEBUG) {
+      console.log('[DEBUG] File Content:' + data);
+    }
+
+    jsonDictionary = addDataToDictionary(jsonDictionary, fileData);
+
+    if (DEBUG) {
+      console.log('[DEBUG] Dictionary = ' + JSON.stringify(jsonDictionary) );
+    }
+
+    saveDictionary(jsonDictionary);
+  });
+}
+
+
 // Go through the files in the directory and consolidate
 for (var i in files) {
   counter++;
@@ -141,30 +170,7 @@ for (var i in files) {
     continue;
   }
 
-  (function(filePath, i, jsonDictionary) {
-
-    fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
-      var fileData = data;
-      var fileName = i + ' : ' + filePath + '/';
-      if (err) {
-        console.log('![ERROR] in file read loop @ ' + fileName);
-        throw err;
-      }
-
-      if (DEBUG) {
-        console.log('[DEBUG] File Content:' + data);
-      }
-
-      jsonDictionary = addDataToDictionary(jsonDictionary, fileData);
-
-      if (DEBUG) {
-        console.log('[DEBUG] Dictionary = ' + JSON.stringify(jsonDictionary) );
-      }
-
-      saveDictionary(jsonDictionary);
-    });
-
-  })(filePath, i, jsonDictionary);
+  readFileAndUpdateDictionary(filePath, i, jsonDictionary);
 }
 
 
