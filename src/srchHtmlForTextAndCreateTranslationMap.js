@@ -118,7 +118,7 @@ function reportUntranslatedText(file, data) {
 
   'use strict';
 
-  var returnMe = 'no content';
+  var returnMe;
   var onlyText = '' + data; //stringify
   onlyText = onlyText.replace(/[\n\r]/g, ' ');
 
@@ -306,7 +306,6 @@ function createTranslatedFile(filename, translationObj, fileContents) {
     }
   });
 }
-
 
 function createTranslationAndDictionary(filePath, fullPath, file, i) {
 
