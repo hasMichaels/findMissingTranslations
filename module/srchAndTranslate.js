@@ -17,9 +17,6 @@
  */
 
 var DEBUG = true;
-var TOKENSEPARATOR = '_';
-var jsonDictionary = {};
-var invertDictionary = {};
 var exampleUsage = 'example usage: node ./src/srchHtmlForTextAndCreateTranslationMap.js /tmp/testDirectory';
 
 var myArgs = require('optimist').argv, help = exampleUsage;
@@ -28,7 +25,6 @@ var path = require('path');
 var isDir = require('is-directory');
 var partialsPath = '/../test/testHtml';
 var directoryPath = __dirname;
-var _ = require('underscore');
 var universalTranslator = require('./fnLostInTranslation');
 
 if (myArgs._[0]) {
@@ -47,14 +43,6 @@ try {
   console.log(e);
 }
 var counter = 0;
-
-function camelize(str) {
-  'use strict';
-  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-    return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
-  }).replace(/\s+/g, '');
-}
-
 
 universalTranslator.loadCommonDictionary();
 

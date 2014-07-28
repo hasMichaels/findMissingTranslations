@@ -1,6 +1,11 @@
 module.exports = function() {
 
-  var DEBUG = false;
+  // To DEBUG or not to DEBUG
+  if ( typeof DEBUG === 'undefined' ) {
+    var DEBUG = false;
+  }
+
+  // Important vars related to translation mapping
   var TOKENSEPARATOR = '_';
   var jsonDictionary = {};
   var invertDictionary = {};
@@ -314,8 +319,7 @@ module.exports = function() {
     // if a directory then skip
     if (isDir(fullPath)) {
 
-      console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' +
-      files.length + ' dir: ' + fullPath);
+      console.log('[DEBUG - SKIPPING Directory]' + fullPath);
 
     } else {
 

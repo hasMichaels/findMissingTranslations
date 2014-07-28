@@ -1,8 +1,12 @@
 # Wiki
 - Workflow + Algs : https://github.com/hasMichaels/findMissingTranslations/wiki
 
+# ./src vs ./module
+- ./src/* scripts grew out of necessity and reused a lot of simlar code
+- ./module/* scripts have the common portions pulled into fnLostInTranslation.js
 
-# srchHtmlForTexts
+
+# src/srchHtmlForTexts || module/srchHtmlForTexts
 
   tiny script for clearing away html, angular, and custom tags to reveal text that need to be translated
 
@@ -26,7 +30,7 @@
 
 
 
-# srchHtmlForTextAndCreateTranslationMap
+# src/srchHtmlForTextAndCreateTranslationMap || module/srchAndTranslate
 
   find partials, create translation mapping
 
@@ -41,7 +45,7 @@
 - .translation : partial with new translation keys
 
 
-# srchAndConsolidateDictFiles
+# src/srchAndConsolidateDictFiles || module/srchAndConsolidateDictFiles
 
   find .dict artifacts, consolidates translations into a .json file
 
