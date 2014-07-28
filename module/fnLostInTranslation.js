@@ -450,11 +450,99 @@ module.exports = function() {
     });
   }
 
+  /*
+   * isThereTranslations
+   *
+   * @returns boolean
+   * @note return whether or not we have a dictionary with keys
+   */
+  function isThereTranslations() {
+    var keyArray = Object.keys(jsonDictionary);
+    if (keyArray.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /* isThereTranslationFiles
+   *
+   * @param directory
+   * @returns boolean
+   * @note returns whether or not there is a .translate in the specified directory
+   */
+  function isThereTranslatedFiles(dir) {
+
+    var fs = require('fs');
+
+    // attempt to read the directory or die with error
+    try {
+      var files = fs.readdirSync(directoryPath + partialsPath);
+    } catch (e) {
+      console.log('Could not open this directory for reading:' + directoryPath + partialsPath);
+      console.log(e);
+    }
+
+    for (var i in files) {
+      // skip non-dictionary files
+      if (!files[i].match(/\.translated/)) {
+        console.log('[DEBUG - SKIPPING Non Translation]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+        continue;
+      } else {
+        // we found a .translation file
+        return true;
+      }
+    }
+    // we didn't find a translation
+    return false;
+
+  }
+
+  /* isThereDictionaryFiles
+   *
+   * @param directory
+   * @returns boolean
+   * @note returns whether or not there is a .translate in the specified directory
+   */
+  function isThereDictionaryFiles(dir) {
+
+    var fs = require('fs');
+
+    // attempt to read the directory or die with error
+    try {
+      var files = fs.readdirSync(directoryPath + partialsPath);
+    } catch (e) {
+      console.log('Could not open this directory for reading:' + directoryPath + partialsPath);
+      console.log(e);
+    }
+
+    for (var i in files) {
+      // skip non-dictionary files
+      if (!files[i].match(/\.dict/)) {
+        console.log('[DEBUG - SKIPPING Non Dictionaries]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+        continue;
+      } else {
+        // we found a dictionary file
+        return true;
+      }
+    }
+
+    // we didn't find a dictionary file
+    return false;
+
+  }
+
   return {
       createTranslationAndDictionary : createTranslationAndDictionary,
       loadCommonDictionary : loadCommonDictionary,
       reportUntranslatedText : reportUntranslatedText,
-      readFileAndUpdateDictionary : readFileAndUpdateDictionary
+      readFileAndUpdateDictionary : readFileAndUpdateDictionary,
+      isThereTranslations : isThereTranslations,
+      areThereTranslations : isThereTranslations,
+      isThereTranslationFiles : isThereTranslatedFiles,
+      areThereTranslationFiles : isThereTranslatedFiles,
+      isThereDictionaryFiles : isThereDictionaryFiles,
+      arethereDictionaryFiles : isThereDictionaryFiles
   };
 
 }();

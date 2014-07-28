@@ -8,6 +8,7 @@
   "dependencies": {
     "optimist": "*",
     "underscore": "~1.6.0",
-    "is-directory": "*"
+    "is-directory": "*",
+    "mocha": "*"
   }
 }
