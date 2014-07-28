@@ -17,9 +17,9 @@
  */
 
 var DEBUG = true;
-var exampleUsage = 'example usage: node ./src/srchHtmlForTextAndCreateTranslationMap.js /tmp/testDirectory';
+var exampleUsage = 'example usage: node srchAndTranslate.js /tmp/testDirectory';
 
-var myArgs = require('optimist').argv, help = exampleUsage;
+var myArgs = require('optimist').usage(exampleUsage).argv;
 var fs = require('fs');
 var path = require('path');
 var isDir = require('is-directory');

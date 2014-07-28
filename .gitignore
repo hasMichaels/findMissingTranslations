@@ -7,17 +7,11 @@ node_modules/*
 
 missing.txt
 
-runChecks
-
 *.translated
 
 *.dict
 
 output.txt
-
-dictionary.json
-
-runDictJoin
 
 collisions.json
 
@@ -32,7 +26,5 @@ findText
 delme.txt
 
 fixthis.txt
-
-runTranslations
 
 checks.txt

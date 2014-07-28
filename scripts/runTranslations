@@ -1,0 +1,8 @@
+node ../src/srchHtmlForTextAndCreateTranslationMap.js /Users/michaels/github/Publisher_Interface_AutoTranslated/Publisher_Interface/app/partials
+node ../src/srchHtmlForTextAndCreateTranslationMap.js /Users/michaels/github/Publisher_Interface_AutoTranslated/Publisher_Interface/app/js/application/adGroups/partials
+node ../src/srchHtmlForTextAndCreateTranslationMap.js /Users/michaels/github/Publisher_Interface_AutoTranslated/Publisher_Interface/app/js/application/apiKey/partials
+node ../src/srchHtmlForTextAndCreateTranslationMap.js /Users/michaels/github/Publisher_Interface_AutoTranslated/Publisher_Interface/app/js/application/customPage/partials
+node ../src/srchHtmlForTextAndCreateTranslationMap.js /Users/michaels/github/Publisher_Interface_AutoTranslated/Publisher_Interface/app/js/application/dashboard/partials
+node ../src/srchHtmlForTextAndCreateTranslationMap.js /Users/michaels/github/Publisher_Interface_AutoTranslated/Publisher_Interface/app/js/application/offers/partials
+node ../src/srchHtmlForTextAndCreateTranslationMap.js /Users/michaels/github/Publisher_Interface_AutoTranslated/Publisher_Interface/app/js/application/terms/partials
+

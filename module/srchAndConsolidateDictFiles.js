@@ -15,7 +15,7 @@
 var DEBUG = true;
 var exampleUsage = 'example usage: node ./src/srchHtmlForText.js /tmp/testDirectory';
 
-var myArgs = require('optimist').argv, help = exampleUsage;
+var myArgs = require('optimist').usage(exampleUsage).argv;
 var fs = require('fs');
 var path = require('path');
 var partialsPath = '/../test/testHtml';
