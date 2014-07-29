@@ -22,7 +22,8 @@
     "DEBUG"              : true,
     "Firebase"           : false,
     "require"            : true,
-    "__dirname"          : true
+    "__dirname"          : true,
+    "module"             : true
   },
   "indent"      : 2,
   "jquery"      : true,

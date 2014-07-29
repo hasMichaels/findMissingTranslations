@@ -5,9 +5,12 @@ suite('File tests', function(){
 
   console.log('running file tests');
   suite('generated files', function(){
-    test('should be true when files are present', function(){
-      assert.equal(translationObj.isThereTranslationFiles('../testHtml'), true);
-      assert.equal(translationObj.isThereDictionaryFiles('../testHtml'), true);
+    test('should be true when files are present .translation files', function(){
+      assert.equal(translationObj.isThereTranslationFiles('test/testHtml'), true);
     });
+    test('should be true when files are present .dict files', function(){
+      assert.equal(translationObj.isThereDictionaryFiles('test/testHtml'), true);
+    });
+
   });
 });

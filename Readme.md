@@ -6,7 +6,7 @@
 - ./module/* scripts have the common portions pulled into fnLostInTranslation.js
 
 
-# src/srchHtmlForTexts || module/srchHtmlForTexts
+# module/srchHtmlForTexts
 
   tiny script for clearing away html, angular, and custom tags to reveal text that need to be translated
 
@@ -30,7 +30,7 @@
 
 
 
-# src/srchHtmlForTextAndCreateTranslationMap || module/srchAndTranslate
+# module/srchAndTranslate
 
   find partials, create translation mapping
 
@@ -45,7 +45,7 @@
 - .translation : partial with new translation keys
 
 
-# src/srchAndConsolidateDictFiles || module/srchAndConsolidateDictFiles
+# module/srchAndConsolidateDictFiles
 
   find .dict artifacts, consolidates translations into a .json file
 

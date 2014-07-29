@@ -116,7 +116,5 @@ for (var i in files) {
 
   readCandidateFile ( filePath, fullPathAndFile , i);
 
-
-
 }
 

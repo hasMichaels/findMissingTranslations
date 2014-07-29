@@ -1,65 +1,56 @@
 module.exports = function() {
+  'use strict';
 
   // To DEBUG or not to DEBUG
   if ( typeof DEBUG === 'undefined' ) {
-    var DEBUG = false;
+    var DEBUG = false; // jshint ignore:line
   }
 
   // Important vars related to translation mapping
   var TOKENSEPARATOR = '_';
   var jsonDictionary = {};
   var invertDictionary = {};
-  var exampleUsage = 'example usage: node ./src/srchHtmlForTextAndCreateTranslationMap.js /tmp/testDirectory';
-
-  var myArgs = require('optimist').argv;
   var fs = require('fs');
-  var path = require('path');
   var isDir = require('is-directory');
-  var partialsPath = '/../test/testHtml';
-  var directoryPath = __dirname;
   var _ = require('underscore');
   var counter = 0;
 
-  function reportUntranslatedTextfunction(file, data) {
-
-    'use strict';
-
-    var returnMe = 'no content';
-    var onlyText = '' + data; //stringify
-    onlyText = onlyText.replace(/[\n\r]/g, ' ');
-
-    // remove translations
-    onlyText = onlyText.replace(/\<\%.+?\%\>/g, '');
-    // remove angular content
-    onlyText = onlyText.replace(/\{\{.+?\}\}/g, '');
-    // remove xml/html tags
-    onlyText = onlyText.replace(/<\/.*?>/g, ',');
-    onlyText = onlyText.replace(/<.*?>/g, '');
-
-    /* At this point we have a file with a lot of commas that delimit each of the xml elements and a lot of
-     * spaces related to flattening the file and removing newlines. */
-
-    // prettify filtered text, remove extra spaces and commas
-    returnMe = onlyText;
-    returnMe = returnMe.replace(/\s+/g, ' ');  // remove multiple spaces
-    returnMe = returnMe.replace(/,\s*/g, ','); // remove comma space
-    returnMe = returnMe.replace(/,+/g, ',');   // remove sequential commas
-
-
-    // log file and untranslated text
-    console.log('missing translations (file: ' + file + ' :: Untranslated Set((' + returnMe + '))');
-
-    return returnMe;
-  }
+//  function reportUntranslatedText (file, data) {
+//
+//    var returnMe = 'no content';
+//    var onlyText = '' + data; //stringify
+//    onlyText = onlyText.replace(/[\n\r]/g, ' ');
+//
+//    // remove translations
+//    onlyText = onlyText.replace(/\<\%.+?\%\>/g, '');
+//    // remove angular content
+//    onlyText = onlyText.replace(/\{\{.+?\}\}/g, '');
+//    // remove xml/html tags
+//    onlyText = onlyText.replace(/<\/.*?>/g, ',');
+//    onlyText = onlyText.replace(/<.*?>/g, '');
+//
+//    /* At this point we have a file with a lot of commas that delimit each of the xml elements and a lot of
+//     * spaces related to flattening the file and removing newlines. */
+//
+//    // prettify filtered text, remove extra spaces and commas
+//    returnMe = onlyText;
+//    returnMe = returnMe.replace(/\s+/g, ' ');  // remove multiple spaces
+//    returnMe = returnMe.replace(/,\s*/g, ','); // remove comma space
+//    returnMe = returnMe.replace(/,+/g, ',');   // remove sequential commas
+//
+//
+//    // log file and untranslated text
+//    console.log('missing translations (file: ' + file + ' :: Untranslated Set((' + returnMe + '))');
+//
+//    return returnMe;
+//  }
 
   /*
    * flattenObj
    *  @param obj - JSON without array members
    *  @param prefix - used during recursion when a JSON member contains an object
-   *  @todo Add this to a common module
    */
   function flattenObj(obj, prefix) {
-    'use strict';
 
     var returnme = {};
     for (var key in obj) {
@@ -79,8 +70,6 @@ module.exports = function() {
   }
 
   function loadCommonDictionary() {
-
-    'use strict';
 
     fs.readFile('common.json', function(err, data) {
 
@@ -111,8 +100,6 @@ module.exports = function() {
   }
 
   function reportUntranslatedText(file, data) {
-
-    'use strict';
 
     var returnMe;
     var onlyText = '' + data; //stringify
@@ -147,15 +134,12 @@ module.exports = function() {
   }
 
   function camelize(str) {
-    'use strict';
     return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
       return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
     }).replace(/\s+/g, '');
   }
 
   function createTranslationMap(filename, csvMissing) {
-
-    'use strict';
 
     // split missing strings into array
     var missingTextAry = csvMissing.split(TOKENSEPARATOR);
@@ -223,8 +207,6 @@ module.exports = function() {
   }
 
   function createTranslatedFile(filename, translationObj, fileContents) {
-
-    'use strict';
 
     var newFileContents = ''+fileContents;
     var newDictionaryContents = '';
@@ -312,8 +294,6 @@ module.exports = function() {
 
   function createTranslationAndDictionary(filePath, fullPath, file, i) {
 
-    'use strict';
-
     var csvStrings, translationMap;
 
     // if a directory then skip
@@ -344,8 +324,6 @@ module.exports = function() {
 
   function saveDictionary(jsonContent) {
 
-    'use strict';
-
     var dictFilename = 'dictionary.json';
 
     var content = JSON.stringify(jsonContent);
@@ -361,8 +339,6 @@ module.exports = function() {
   }
 
   function addDataToDictionary(dict, fileData) {
-
-    'use strict';
 
     var combinedDictionary = dict;
 
@@ -425,8 +401,6 @@ module.exports = function() {
 
   function readFileAndUpdateDictionary(directoryPath, filePath, partialsPath, file, i, jsonDictionary) {
 
-    'use strict';
-
     fs.readFile(directoryPath + partialsPath + '/' + file, function(err, data) {
       var fileData = data;
       var fileName = i + ' : ' + filePath + '/';
@@ -474,18 +448,19 @@ module.exports = function() {
   function isThereTranslatedFiles(dir) {
 
     var fs = require('fs');
-
+    var files;
     // attempt to read the directory or die with error
     try {
-      var files = fs.readdirSync(directoryPath + partialsPath);
+      files = fs.readdirSync(dir);
     } catch (e) {
-      console.log('Could not open this directory for reading:' + directoryPath + partialsPath);
+      console.log('Could not open this directory for reading:' + dir);
       console.log(e);
     }
 
     for (var i in files) {
       if (!files[i].match(/\.translated/)) {
-        console.log('[DEBUG - SKIPPING Non Translation]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+        console.log('[DEBUG - SKIPPING Non Translation]' + counter + ' of ' +
+          files.length + ' files: ' + files[i]); // jshint ignore:line
         continue;
       } else {
         // we found a .translation file
@@ -501,23 +476,25 @@ module.exports = function() {
    *
    * @param directory
    * @returns boolean
-   * @note returns whether or not there is a .translate in the specified directory
+   * @note returns whether or not there is a .dict in the specified directory
    */
   function isThereDictionaryFiles(dir) {
 
     var fs = require('fs');
+    var files;
 
     // attempt to read the directory or die with error
     try {
-      var files = fs.readdirSync(directoryPath + partialsPath);
+      files = fs.readdirSync(dir);
     } catch (e) {
-      console.log('Could not open this directory for reading:' + directoryPath + partialsPath);
+      console.log('Could not open this directory for reading:' + dir);
       console.log(e);
     }
 
     for (var i in files) {
       if (!files[i].match(/\.dict/)) {
-        console.log('[DEBUG - SKIPPING Non Dictionaries]' + counter + ' of ' + files.length + ' files: ' + files[i]);
+        console.log('[DEBUG - SKIPPING Non Dictionaries]' + counter + ' of ' +
+          files.length + ' files: ' + files[i]);
         continue;
       } else {
         // we found a dictionary file
@@ -530,7 +507,7 @@ module.exports = function() {
 
   }
 
-  /* isThereDictionaryFiles
+  /* isThereTranslationOf
    *
    * @param directory
    * @returns boolean
@@ -542,14 +519,14 @@ module.exports = function() {
 
     // attempt to read the directory or die with error
     try {
-      var oneFile = fs.open(file, 'r');
-      return true;
+      var oneFile = fs.open(file+'.translated', 'r'); // jshint ignore:line
     } catch (e) {
-      console.log('Could not open this directory for reading:' + directoryPath + partialsPath);
+      console.log('Could not open:' + file);
       console.log(e);
       return false;
     }
 
+    // opened without error
     return true;
 
   }

@@ -1,8 +1,8 @@
-node ../src/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/partials
-node ../src/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/adGroups/partials
-node ../src/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/apiKey/partials
-node ../src/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/customPage/partials
-node ../src/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/dashboard/partials
-node ../src/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/offers/partials
-node ../src/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/terms/partials
+node ../module/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/partials
+node ../module/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/adGroups/partials
+node ../module/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/apiKey/partials
+node ../module/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/customPage/partials
+node ../module/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/dashboard/partials
+node ../module/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/offers/partials
+node ../module/srchHtmlForText.js /Users/michaels/github/Publisher_Interface/app/js/application/terms/partials
 

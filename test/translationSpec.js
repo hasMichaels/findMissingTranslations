@@ -14,7 +14,7 @@ exec(proggie, function (error, stdout, stderr) {
 suite('Are There Translations', function(){
   console.log('running file tests');
   suite('generated files', function(){
-    test('should return -1 when not present', function(){
+    test('there should be a .translated file for each .html file', function(){
       assert.equal(translationObj.isThereTranslationOf('testHtml/allTranslated.html'), true);
       assert.equal(translationObj.isThereTranslationOf('testHtml/missingSomeTranslations.html'), true);
     });
