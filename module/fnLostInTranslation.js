@@ -484,7 +484,6 @@ module.exports = function() {
     }
 
     for (var i in files) {
-      // skip non-dictionary files
       if (!files[i].match(/\.translated/)) {
         console.log('[DEBUG - SKIPPING Non Translation]' + counter + ' of ' + files.length + ' files: ' + files[i]);
         continue;
@@ -517,7 +516,6 @@ module.exports = function() {
     }
 
     for (var i in files) {
-      // skip non-dictionary files
       if (!files[i].match(/\.dict/)) {
         console.log('[DEBUG - SKIPPING Non Dictionaries]' + counter + ' of ' + files.length + ' files: ' + files[i]);
         continue;
@@ -532,6 +530,31 @@ module.exports = function() {
 
   }
 
+  /* isThereDictionaryFiles
+   *
+   * @param directory
+   * @returns boolean
+   * @note returns whether or not there is a .translate in the specified directory
+   */
+  function isThereTranslationOf(file) {
+
+    var fs = require('fs');
+
+    // attempt to read the directory or die with error
+    try {
+      var oneFile = fs.open(file, 'r');
+      return true;
+    } catch (e) {
+      console.log('Could not open this directory for reading:' + directoryPath + partialsPath);
+      console.log(e);
+      return false;
+    }
+
+    return true;
+
+  }
+
+
   return {
       createTranslationAndDictionary : createTranslationAndDictionary,
       loadCommonDictionary : loadCommonDictionary,
@@ -542,7 +565,8 @@ module.exports = function() {
       isThereTranslationFiles : isThereTranslatedFiles,
       areThereTranslationFiles : isThereTranslatedFiles,
       isThereDictionaryFiles : isThereDictionaryFiles,
-      arethereDictionaryFiles : isThereDictionaryFiles
+      arethereDictionaryFiles : isThereDictionaryFiles,
+      isThereTranslationOf : isThereTranslationOf
   };
 
 }();
