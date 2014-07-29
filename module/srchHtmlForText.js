@@ -43,38 +43,6 @@ try {
 }
 var counter = 0;
 
-function oldreportUntranslatedText(file, data) {
-
-  'use strict';
-
-  var returnMe = 'no content';
-  var onlyText = '' + data; //stringify
-  onlyText = onlyText.replace(/[\n\r]/g, ' ');
-
-  // remove translations
-  onlyText = onlyText.replace(/\<\%.+?\%\>/g, '');
-  // remove angular content
-  onlyText = onlyText.replace(/\{\{.+?\}\}/g, '');
-  // remove xml/html tags
-  onlyText = onlyText.replace(/<\/.*?>/g, ',');
-  onlyText = onlyText.replace(/<.*?>/g, '');
-
-  /* At this point we have a file with a lot of commas that delimit each of the xml elements and a lot of
-   * spaces related to flattening the file and removing newlines. */
-
-  // prettify filtered text, remove extra spaces and commas
-  returnMe = onlyText;
-  returnMe = returnMe.replace(/\s+/g, ' ');  // remove multiple spaces
-  returnMe = returnMe.replace(/,\s*/g, ','); // remove comma space
-  returnMe = returnMe.replace(/,+/g, ',');   // remove sequential commas
-
-
-  // log file and untranslated text
-  console.log('missing translations (file: ' + file + ' :: Untranslated Set((' + returnMe + '))');
-
-  return returnMe;
-}
-
 // go through files
 for (var i in files) {
   counter++;
@@ -117,25 +85,27 @@ for (var i in files) {
     console.log('[DEBUG]_partials: ' + partialsPath);
   }
 
-  (function(filePath, i) {
+  // if a directory then skip
+  if (isDir(directoryPath + partialsPath + '/' + files[i])) {
 
-    // if a directory then skip
-    if (isDir(directoryPath + partialsPath + '/' + files[i])) {
+    console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' + files.length + ' dir: ' + directoryPath + files[i]);
+    continue;
 
-      console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' + files.length + ' dir: ' + directoryPath + files[i]);
+  }
 
-    } else {
-
-      fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
-        var fileData = data;
-        var fileName = i + ' : ' + filePath + '/';
-        if (err) throw err;
-        if (DEBUG) {
-          console.log('[DEBUG] File Content:' + data);
-        }
-        universalTranslator.reportUntranslatedText(fileName, fileData);
-      });
-
+  fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
+    'use strict';
+    var fileData = data;
+    var fileName = i + ' : ' + filePath + '/';
+    if (err) {
+      throw err;
     }
-  })(filePath, i);
+    if (DEBUG) {
+      console.log('[DEBUG] File Content:' + data);
+    }
+    universalTranslator.reportUntranslatedText(fileName, fileData);
+  });
+
+
+
 }
