@@ -32,6 +32,23 @@ if (myArgs._[0]) {
   partialsPath = myArgs._[0];
 }
 
+
+function readCandidateFile ( filePath, fullPathAndFile, i ) {
+
+  fs.readFile(fullPathAndFile, function(err, data) {
+    'use strict';
+    var fileData = data;
+    var fileName = i + ' : ' + filePath + '/';
+    if (err) {
+      throw err;
+    }
+    if (DEBUG) {
+      console.log('[DEBUG] File Content:' + data);
+    }
+    universalTranslator.reportUntranslatedText(fileName, fileData);
+  });
+}
+
 console.log('searching for files in:' + directoryPath + partialsPath);
 
 // attempt to read the directory or die with error
@@ -41,13 +58,14 @@ try {
   console.log('Could not open this directory for reading:' + directoryPath + partialsPath);
   console.log(e);
 }
-var counter = 0;
+var counter = -1;
 
 // go through files
 for (var i in files) {
-  counter++;
-  var filePath = path.join(directoryPath + files[i]);
 
+  counter++;
+
+  var filePath = path.join(directoryPath + files[i]);
 
   // skip translated files
   if (files[i].match(/\.translated/)) {
@@ -85,27 +103,20 @@ for (var i in files) {
     console.log('[DEBUG]_partials: ' + partialsPath);
   }
 
-  // if a directory then skip
-  if (isDir(directoryPath + partialsPath + '/' + files[i])) {
+  var fullPathAndFile =  directoryPath + partialsPath + '/' + files[i];
 
-    console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' + files.length + ' dir: ' + directoryPath + files[i]);
+  // if a directory then skip
+  if (isDir(fullPathAndFile)) {
+
+    console.log('[DEBUG - SKIPPING Directory]' + counter + ' of ' + files.length + ' dir: ' +
+      directoryPath + files[i]);
     continue;
 
   }
 
-  fs.readFile(directoryPath + partialsPath + '/' + files[i], function(err, data) {
-    'use strict';
-    var fileData = data;
-    var fileName = i + ' : ' + filePath + '/';
-    if (err) {
-      throw err;
-    }
-    if (DEBUG) {
-      console.log('[DEBUG] File Content:' + data);
-    }
-    universalTranslator.reportUntranslatedText(fileName, fileData);
-  });
+  readCandidateFile ( filePath, fullPathAndFile , i);
 
 
 
 }
+
