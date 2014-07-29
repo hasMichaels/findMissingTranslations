@@ -9,6 +9,13 @@
     "optimist": "*",
     "underscore": "~1.6.0",
     "is-directory": "*",
-    "mocha": "*"
+    "mocha": "*",
+    "grunt-mocha-test": "*",
+    "grunt": "~0.4.2",
+    "grunt-shell": "~0.3.1",
+    "grunt-contrib-clean": "~0.5.0"
+  },
+  "devDependencies": {
+    "grunt-mocha-test": "^0.11.0"
   }
 }

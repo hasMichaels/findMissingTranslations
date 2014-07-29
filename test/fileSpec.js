@@ -1,8 +1,4 @@
-var testCase = require('mocha').describe;
-var pre = require('mocha').before;
-var assertions = require('mocha').assertions;
 var assert = require('assert');
-var describe = require('describe');
 var translationObj = require('../module/fnLostInTranslation');
 
 suite('File tests', function(){
